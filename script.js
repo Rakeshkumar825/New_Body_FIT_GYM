@@ -73,7 +73,7 @@ if (!serviceSelect.value || !planSelect.value) {
 
 
     // ================= BACKEND CALL =================
-    fetch("http://localhost:5000/join", {
+    fetch("https://new-body-fit-gym-backend.onrender.com", {
         method: "POST",
         headers: {
             "Content-Type": "application/json"
@@ -105,3 +105,4 @@ if (!serviceSelect.value || !planSelect.value) {
         console.error(err);
     });
 });
+
