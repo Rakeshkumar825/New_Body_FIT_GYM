@@ -1,5 +1,4 @@
 // ================= TOTAL CALCULATION =================
-
 function calculateTotal() {
     let service = document.getElementById("service");
     let plan = document.getElementById("plan");
@@ -9,7 +8,7 @@ function calculateTotal() {
 
     let total = servicePrice + planPrice;
 
-    document.getElementById("total").innerText = "₹" + total;
+    document.getElementById("total").innerText = total;
 
     if (service.value && plan.value) {
         document.getElementById("summary").style.display = "block";
@@ -21,15 +20,16 @@ function calculateTotal() {
     }
 }
 
+
 // ================= FORM SUBMIT + BACKEND =================
 document.getElementById("joinForm").addEventListener("submit", function (e) {
     e.preventDefault();
 
     // INPUT VALUES
-    let name = document.getElementById("name").value;
-    let age = document.getElementById("age").value;
+    let name = document.getElementById("name").value.trim();
+    let age = parseInt(document.getElementById("age").value);
     let gender = document.getElementById("gender").value;
-    let phone = document.getElementById("phone").value;
+    let phone = document.getElementById("phone").value.trim();
 
     let serviceSelect = document.getElementById("service");
     let planSelect = document.getElementById("plan");
@@ -37,43 +37,43 @@ document.getElementById("joinForm").addEventListener("submit", function (e) {
     let serviceText = serviceSelect.options[serviceSelect.selectedIndex].text;
     let planText = planSelect.options[planSelect.selectedIndex].text;
 
-    // TOTAL AMOUNT (SAFE SOURCE)
-    let total = document.getElementById("total").innerText.replace("₹", "");
+    let total = parseInt(document.getElementById("total").innerText);
+
 
     // ================= VALIDATION =================
-   if (age < 14 || age > 65) {
-    Swal.fire({
-        icon: 'warning',
-        title: 'Invalid Age',
-        text: 'Age must be between 14 and 65 years',
-        confirmButtonColor: '#d32f2f'
-    });
-    return;
-}
+    if (age < 14 || age > 65) {
+        Swal.fire({
+            icon: "warning",
+            title: "Invalid Age",
+            text: "Age must be between 14 and 65 years",
+            confirmButtonColor: "#d32f2f"
+        });
+        return;
+    }
 
-if (!/^[0-9]{10}$/.test(phone)) {
-    Swal.fire({
-        icon: 'error',
-        title: 'Invalid Mobile Number',
-        text: 'Please enter a valid 10-digit mobile number',
-        confirmButtonColor: '#d32f2f'
-    });
-    return;
-}
+    if (!/^[0-9]{10}$/.test(phone)) {
+        Swal.fire({
+            icon: "error",
+            title: "Invalid Mobile Number",
+            text: "Please enter a valid 10-digit mobile number",
+            confirmButtonColor: "#d32f2f"
+        });
+        return;
+    }
 
-if (!serviceSelect.value || !planSelect.value) {
-    Swal.fire({
-        icon: 'info',
-        title: 'Selection Required',
-        text: 'Please select service and membership plan',
-        confirmButtonColor: '#d32f2f'
-    });
-    return;
-}
+    if (!serviceSelect.value || !planSelect.value) {
+        Swal.fire({
+            icon: "info",
+            title: "Selection Required",
+            text: "Please select service and membership plan",
+            confirmButtonColor: "#d32f2f"
+        });
+        return;
+    }
 
 
-    // ================= BACKEND CALL =================
-    fetch("https://new-body-fit-gym-backend.onrender.com", {
+    // ================= BACKEND CALL (LIVE) =================
+    fetch("https://new-body-fit-gym-backend.onrender.com/join", {
         method: "POST",
         headers: {
             "Content-Type": "application/json"
@@ -82,27 +82,30 @@ if (!serviceSelect.value || !planSelect.value) {
             name: name,
             phone: phone,
             plan: serviceText + " | " + planText,
-            amount: parseInt(total)
+            amount: total
         })
     })
     .then(res => res.json())
-    .then(() => {
+    .then(data => {
         Swal.fire({
-  icon: 'success',
-  title: 'Joined Successfully!',
-  text: 'Welcome to New Body Fit Gym 💪',
-  confirmButtonColor: '#d32f2f'
-});
-
+            icon: "success",
+            title: "Joined Successfully!",
+            text: "Welcome to New Body Fit Gym 💪",
+            confirmButtonColor: "#d32f2f"
+        });
 
         // RESET FORM
-        this.reset();
+        document.getElementById("joinForm").reset();
         document.getElementById("summary").style.display = "none";
-        document.getElementById("total").innerText = "₹0";
+        document.getElementById("total").innerText = "0";
     })
     .catch(err => {
-        alert("Server error. Try again.");
         console.error(err);
+        Swal.fire({
+            icon: "error",
+            title: "Server Error",
+            text: "Please try again later",
+            confirmButtonColor: "#d32f2f"
+        });
     });
 });
-
