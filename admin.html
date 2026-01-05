@@ -1,0 +1,168 @@
+<!DOCTYPE html>
+<html>
+<head>
+  <title>Admin Panel</title>
+  <link rel="stylesheet" href="style.css">
+</head>
+<body>
+
+<!-- NAVBAR -->
+<nav class="navbar">
+    <div class="logo">New Body Fit Gym</div>
+    <div class="menu">
+        <a href="index.html">Home</a>
+        <a href="services.html">Services</a>
+        <a href="plans.html">Plans</a>
+        <a href="join.html">Join</a>
+        <a href="about.html">About</a>
+        <a href="contact.html">Contact</a>
+        <a href="admin-login.html" class="active">Admin</a>
+    </div>
+</nav>
+
+<section class="section">
+  <h2>Gym Members List</h2>
+
+  <!-- LOGOUT BUTTON -->
+  <button onclick="logout()" style="float:right; margin-bottom:15px;">
+    Logout
+  </button>
+
+  <table border="1" width="100%">
+    <thead>
+      <tr>
+        <th>Name</th>
+        <th>Phone</th>
+        <th>Plan</th>
+        <th>Amount</th>
+        <th>Action</th> <!-- ✅ NEW -->
+      </tr>
+    </thead>
+    <tbody id="memberTable"></tbody>
+  </table>
+</section>
+
+<!-- SweetAlert -->
+<script src="https://cdn.jsdelivr.net/npm/sweetalert2@11"></script>
+
+<script>
+/* ================= SESSION CONFIG ================= */
+const SESSION_TIME = 10 * 60 * 1000; // 10 minutes
+
+/* ================= LOGIN + SESSION CHECK ================= */
+const isLoggedIn = localStorage.getItem("adminLoggedIn");
+const loginTime = localStorage.getItem("loginTime");
+
+if (!isLoggedIn || !loginTime) {
+  window.location.href = "admin-login.html";
+}
+
+// Session expiry check
+if (Date.now() - loginTime > SESSION_TIME) {
+  Swal.fire({
+    icon: 'warning',
+    title: 'Session Expired',
+    text: 'Please login again'
+  }).then(() => {
+    localStorage.clear();
+    window.location.href = "admin-login.html";
+  });
+}
+
+/* ================= FETCH MEMBERS ================= */
+function loadMembers() {
+  fetch("http://localhost:5000/admin/members")
+    .then(res => res.json())
+    .then(data => {
+      let rows = "";
+      data.forEach(m => {
+        rows += `
+          <tr>
+            <td>${m.name}</td>
+            <td>${m.phone}</td>
+            <td>${m.plan}</td>
+            <td>₹${m.amount}</td>
+            <td>
+              <button 
+                style="background:red;color:white;border:none;padding:5px 10px;cursor:pointer"
+                onclick="deleteMember('${m._id}')">
+                Delete
+              </button>
+            </td>
+          </tr>
+        `;
+      });
+      document.getElementById("memberTable").innerHTML = rows;
+    });
+}
+loadMembers();
+
+/* ================= DELETE MEMBER ================= */
+function deleteMember(id) {
+  Swal.fire({
+    title: 'Are you sure?',
+    text: 'This member will be permanently deleted!',
+    icon: 'warning',
+    showCancelButton: true,
+    confirmButtonColor: '#d32f2f',
+    cancelButtonColor: '#555',
+    confirmButtonText: 'Yes, delete'
+  }).then((result) => {
+    if (result.isConfirmed) {
+      fetch(`http://localhost:5000/admin/delete/${id}`, {
+
+        method: 'DELETE'
+      })
+      .then(res => res.json())
+      .then(() => {
+        Swal.fire('Deleted!', 'Member deleted successfully', 'success');
+        loadMembers(); // refresh table
+      });
+    }
+  });
+}
+
+/* ================= LOGOUT ================= */
+function logout() {
+  localStorage.clear();
+  window.location.href = "admin-login.html";
+}
+
+/* ================= BACK BUTTON PROTECTION ================= */
+window.history.pushState(null, null, window.location.href);
+window.onpopstate = function () {
+  window.history.go(1);
+};
+</script>
+
+<!-- FOOTER -->
+<footer class="footer">
+  <div class="footer-box">
+      <h3>New Body Fit Gym</h3>
+      <p class="tagline">Build Your Body, Build Your Confidence</p>
+  </div>
+
+  <div class="footer-box">
+      <h4>Contact Info</h4>
+      <p>📍 Block Road, Dalsinghsarai, Bihar</p>
+      <p>📞 <a href="tel:+917520350736">+91 75203 50736</a></p>
+      <p>🕒 Mon – Sun: 5:00 AM – 10:00 PM</p>
+  </div>
+
+  <div class="footer-box">
+      <h4>Quick Links</h4>
+      <ul class="footer-links">
+          <li><a href="index.html">Home</a></li>
+          <li><a href="services.html">Services</a></li>
+          <li><a href="plans.html">Plans</a></li>
+          <li><a href="join.html">Join</a></li>
+      </ul>
+  </div>
+
+  <div class="copyright">
+      © 2026 New Body Fit Gym | All Rights Reserved
+  </div>
+</footer>
+
+</body>
+</html>

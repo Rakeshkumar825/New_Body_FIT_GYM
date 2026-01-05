@@ -1,0 +1,43 @@
+<!DOCTYPE html>
+<html>
+<head>
+  <title>User Signup</title>
+</head>
+<body>
+
+<h2>User Signup</h2>
+
+<form id="signupForm">
+  <input id="name" placeholder="Name" required>
+  <input id="email" placeholder="Email" required>
+  <input id="password" type="password" placeholder="Password" required>
+  <button>Signup</button>
+</form>
+
+<script>
+document.getElementById("signupForm").addEventListener("submit", function(e){
+  e.preventDefault();
+
+  fetch("http://localhost:5000/user/signup", {
+    method: "POST",
+    headers: {"Content-Type":"application/json"},
+    body: JSON.stringify({
+      name: name.value,
+      email: email.value,
+      password: password.value
+    })
+  })
+  .then(res => res.json())
+  .then(data => {
+    if(data.success){
+      alert("Signup successful");
+      window.location.href = "login.html";
+    } else {
+      alert(data.message);
+    }
+  });
+});
+</script>
+
+</body>
+</html>
