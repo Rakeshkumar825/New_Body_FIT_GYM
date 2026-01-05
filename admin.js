@@ -1,8 +1,11 @@
-// LOAD MEMBERS
-fetch("http://localhost:5000/members")
+// ===============================
+// LOAD MEMBERS (LIVE BACKEND)
+// ===============================
+fetch("https://new-body-fit-gym-backend.onrender.com/members")
   .then(res => res.json())
   .then(data => {
     const table = document.getElementById("userTable");
+    table.innerHTML = ""; // clear old rows
 
     data.forEach(user => {
       const row = document.createElement("tr");
@@ -13,8 +16,9 @@ fetch("http://localhost:5000/members")
         <td>${user.plan}</td>
         <td>₹${user.amount}</td>
         <td>
-          <button onclick="deleteUser('${user._id}')"
-            style="background:red;color:white;border:none;padding:5px;">
+          <button 
+            onclick="deleteUser('${user._id}')"
+            style="background:red;color:white;border:none;padding:6px 10px;cursor:pointer;">
             Delete
           </button>
         </td>
@@ -22,9 +26,16 @@ fetch("http://localhost:5000/members")
 
       table.appendChild(row);
     });
+  })
+  .catch(err => {
+    console.error("Error loading members:", err);
+    alert("Failed to load members");
   });
 
-// DELETE MEMBER
+
+// ===============================
+// DELETE MEMBER (LIVE BACKEND)
+// ===============================
 function deleteUser(id) {
   Swal.fire({
     title: "Are you sure?",
@@ -36,13 +47,17 @@ function deleteUser(id) {
     confirmButtonText: "Yes, delete"
   }).then(result => {
     if (result.isConfirmed) {
-      fetch(`http://localhost:5000/delete/${id}`, {
+      fetch(`https://new-body-fit-gym-backend.onrender.com/delete/${id}`, {
         method: "DELETE"
       })
       .then(res => res.json())
-      .then(() => {
-        Swal.fire("Deleted!", "Member deleted", "success");
-        location.reload();
+      .then(data => {
+        Swal.fire("Deleted!", "Member deleted successfully", "success");
+        location.reload(); // refresh table
+      })
+      .catch(err => {
+        console.error("Delete error:", err);
+        Swal.fire("Error", "Failed to delete member", "error");
       });
     }
   });
